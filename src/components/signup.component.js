@@ -1,12 +1,21 @@
 import React, { Component } from "react";
 export default class SignUp extends Component {
     render() {
+        const handleSignup = (event) => {
+          event.preventDefault();
+          alert("Registered Successfully!");
+          window.location.href='/sign-in';
+        }
         return (
-                <form>
+                <form onSubmit={handleSignup}>
                   <h3>Sign Up</h3>
                   <div className="mb-3">
                      <label>Username</label>
                      <input type="text" className="form-control" placeholder="Enter Username"/>
+                  </div>
+                  <div className="mb-3">
+                     <label>Email</label>
+                     <input type="text" className="form-control" placeholder="Enter Your Email"/>
                   </div>
                   <div className="mb-3">
                       <label>Password</label>

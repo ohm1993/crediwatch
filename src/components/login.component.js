@@ -1,8 +1,17 @@
 import React, { Component } from "react";
-export default class Login extends Component {
-    render() {
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../App";
+export const Login = () => {
+      const navigate = useNavigate();
+      const { dispatch } = React.useContext(AuthContext);
+      const handleSubmit = (event) => {
+        event.preventDefault();
+        alert("Logedin Successfully!");
+        dispatch({type:"LOGIN",payload:{user:{name:"ohm"}}})
+        navigate("/product");
+      }
         return (
-                <form>
+          <form onSubmit={handleSubmit}>
            <h3>Sign In</h3>
            <div className="mb-3">
              <label>Username</label>
@@ -33,9 +42,7 @@ export default class Login extends Component {
              </div>
            </div>
            <div className="d-grid text-center">
-             <button type="submit" className="btn btn-primary">
-               Submit
-             </button>
+             <input type="submit" value="Submit" className="btn btn-primary" />
            </div>
            <br></br>
            <div class="col-md-12"> <a class="btn btn-lg btn-google btn-block text-uppercase btn-outline btn btn-danger google-plus" href="#">SignIn Using Google</a> </div>
@@ -44,5 +51,5 @@ export default class Login extends Component {
            </p>
           </form>
         );
-    }
 }
+export default Login;
