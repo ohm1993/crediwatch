@@ -1,22 +1,31 @@
 
 import React, { Component } from "react";
+import { useNavigate } from "react-router-dom";
 
-class ContactRow extends React.Component {
-  render() {
-    return (
-      <tr>
-        <td><img src={this.props.contact.image} width="100" height="100"></img></td>
-        <td>{this.props.contact.name}</td>
-        <td>{this.props.contact.price}</td>
-        <td>{this.props.contact.description}</td>
-        <td><input type='number' value='1' id='quantity' name='quantity' min='1' max='5'/></td>
-        <td>
-          <button type="submit" class="btn btn-success ms-1" onClick={event => window.location.href='/orderdetail'}>Buy Now</button>
-        </td>
-      </tr>
-    );
+const ContactRow = (props) => {
+  const navigate = useNavigate();
+  const handleOrderDetails = () => {
+     navigate("/orderdetail");
   }
-}
+  const removeItems = () => {
+     navigate("/orderdetail");
+  }
+
+  return (
+    <tr>
+      <td><img src={props.contact.image} width="100" height="100"></img></td>
+      <td>{props.contact.name}</td>
+      <td>{props.contact.price}</td>
+      <td>{props.contact.description}</td>
+      <td>1</td>
+      <td>
+        <button type="submit" class="btn btn-danger mr-2" onClick={removeItems}>Remove</button>
+        <button type="submit" class="btn btn-success ms-1" onClick={handleOrderDetails}>Buy Now</button>
+      </td>
+    </tr>
+  );
+};
+
 
 class ContactTable extends React.Component {
   render() {

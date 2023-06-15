@@ -1,32 +1,59 @@
 
 import React, { Component } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
-class ContactRow extends React.Component {
-  render() {
-    return (
-      <tr>
-        <td><img src={this.props.contact.image} width="100" height="100"></img></td>
-        <td>{this.props.contact.name}</td>
-        <td>{this.props.contact.price}</td>
-        <td>{this.props.contact.description}</td>
-        <td><input type='number' value='1' id='quantity' name='quantity' min='1' max='5'/></td>
-        <td>
-          <button type="submit" class="btn btn-danger mr-2" onClick={event => window.location.href='/wishlists'}>Save</button>
-          <button type="submit" class="btn btn-success ms-1" onClick={event => window.location.href='/orderdetail'}>Buy Now</button>
-        </td>
-      </tr>
-    );
+const ContactRow = (props) => {
+  const navigate = useNavigate();
+  const handleWishlist = () => {
+     navigate("/wishlists");
   }
-}
+  const handleOrderDetails = () => {
+     navigate("/orderdetail");
+  }
+  return (
+    <tr>
+      <td><img src={props.contact.image} width="100" height="100"></img></td>
+      <td>{props.contact.name}</td>
+      <td>{props.contact.price}</td>
+      <td>{props.contact.description}</td>
+      <td><input type='number' value='1' id='quantity' name='quantity' min='1' max='5'/></td>
+      <td>
+        <button type="submit" class="btn btn-danger mr-2" onClick={handleWishlist}>Save</button>
+        <button type="submit" class="btn btn-success ms-1" onClick={handleOrderDetails}>Buy Now</button>
+      </td>
+    </tr>
+  );
+};
+
 
 class ContactTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      products: []
+    };
+  }
+
+  componentDidMount() {
+    axios.get('http://localhost:8000/product')
+      .then(response => {
+        if(response.data.status){
+           this.setState({ products: response.data.data, loading: false });
+        }
+      })
+      .catch(error => {
+        alert("error");
+      });
+  }
+
   render() {
     var rows = [];
-    this.props.contacts.forEach((contact) => {
+    this.state.products.forEach((contact) => {
       if (contact.name.indexOf(this.props.filterText) === -1) {
         return;
       }
-      rows.push(<ContactRow contact={contact} />);
+      rows.push(<ContactRow contact={contact}/>);
     });
     return (
       <table className='table'>
@@ -74,13 +101,10 @@ class SearchBar extends React.Component {
 export default class  Product extends React.Component {
   constructor(props) {
     super(props);
-    // FilterableContactTable is the owner of the state as the filterText is needed in both nodes (searchbar and table) that are below in the hierarchy tree.
     this.state = {
       filterText: ''
     };
-
     this.handleFilterTextInput = this.handleFilterTextInput.bind(this);
-
   }
 
   handleFilterTextInput(filterText) {
@@ -98,7 +122,6 @@ export default class  Product extends React.Component {
           onFilterTextInput={this.handleFilterTextInput}
         />
         <ContactTable
-          contacts={this.props.contacts}
           filterText={this.state.filterText}
         />
       </div>

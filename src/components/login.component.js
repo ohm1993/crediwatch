@@ -1,14 +1,32 @@
 import React, { Component } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 import { AuthContext } from "../App";
 export const Login = () => {
       const navigate = useNavigate();
       const { dispatch } = React.useContext(AuthContext);
+      const initialState = {email: "",password: ""};
+      const [data, setData] = React.useState(initialState);
+      const handleInputChange = event => {
+          setData({
+            ...data,
+            [event.target.name]: event.target.value
+          });
+      };
       const handleSubmit = (event) => {
         event.preventDefault();
-        alert("Logedin Successfully!");
-        dispatch({type:"LOGIN",payload:{user:{name:"ohm"}}})
-        navigate("/product");
+        setData({...data});
+        axios.post('http://localhost:8000/user/login', {
+           email: data.email,
+           password: data.password ,
+         }).then((res) => {
+           console.log("success response is",res);
+           alert("Logedin Successfully!");
+           dispatch({type:"LOGIN",payload:{user:{name:"ohm"}}})
+           navigate("/product");
+         }).catch((err) => {
+            alert("error");
+         });
       }
         return (
           <form onSubmit={handleSubmit}>
@@ -18,7 +36,10 @@ export const Login = () => {
              <input
                type="text"
                className="form-control"
-               placeholder="Enter Username"
+               placeholder="Enter Email"
+               name="email"
+               id="email"
+               onChange={handleInputChange}
              />
            </div>
            <div className="mb-3">
@@ -27,6 +48,9 @@ export const Login = () => {
                type="password"
                className="form-control"
                placeholder="Enter password"
+               name="password"
+               id="password"
+               onChange={handleInputChange}
              />
            </div>
            <div className="mb-3">
