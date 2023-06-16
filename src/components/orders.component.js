@@ -6,14 +6,14 @@ class ContactRow extends React.Component {
   render() {
     return (
       <tr>
-        <td>{this.props.contact.order_id}</td>
+        <td>{this.props.contact._id}</td>
         <td>{this.props.contact.createdAt}</td>
-        <td><img src={this.props.contact.product_id.image} width="50" height="50"></img></td>
-        <td>{this.props.contact.product_id.name}</td>
+        <td><img src={this.props.contact.orderitems[0].product_id.image} width="50" height="50"></img></td>
+        <td>{this.props.contact.orderitems[0].product_id.name}</td>
         <td>1</td>
-        <td>{this.props.total_price}</td>
+        <td>{this.props.contact.total_price}</td>
         <td>
-          <button type="submit" className="btn btn-danger" disabled>{this.props.status}</button>
+          <button type="submit" className="btn btn-danger" disabled>{this.props.contact.status}</button>
         </td>
       </tr>
     );
@@ -33,12 +33,9 @@ class ContactTable extends React.Component {
       let user = JSON.parse(localStorage.getItem("user"));
       axios.get(`http://localhost:8000/order/${user._id}`)
         .then(response => {
-            console.log("order response is",response.data.data[0]);
+            console.log("order response is",response.data.data);
             if(response.data.status){
-               this.setState({ orders: response.data.data[0].orderitems,
-                              status:response.data.data[0].status,
-                              total_price:response.data.data[0].total_price
-                            });
+               this.setState({ orders: response.data.data});
             }
         })
         .catch(error => {
@@ -50,7 +47,7 @@ class ContactTable extends React.Component {
   render() {
     var rows = [];
     this.state.orders.forEach((contact) => {
-      rows.push(<ContactRow contact={contact} status={this.state.status} total_price={this.state.total_price}/>);
+      rows.push(<ContactRow contact={contact}/>);
     });
     return (
       <table className='table'>
