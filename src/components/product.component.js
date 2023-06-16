@@ -5,8 +5,27 @@ import axios from 'axios';
 
 const ContactRow = (props) => {
   const navigate = useNavigate();
-  const handleWishlist = () => {
-     navigate("/wishlists");
+  const handleWishlist = (id) => {
+    let user = JSON.parse(localStorage.getItem("user"));
+    axios.post('http://localhost:8000/wishlist/create',{
+       name: user.name,
+       user_id:user._id,
+     }).then((res) => {
+       let wishlistResp = res.data;
+       if(wishlistResp.status){
+          axios.post(`http://localhost:8000/wishlist/${wishlistResp.data._id}/items`,{
+            product_id: id
+          }).then((resp1) =>{
+             console.log("resp1 value is",resp1);
+             alert("item added to the wish list successfully");
+             navigate("/wishlists");
+          }).catch((err) => {
+             alert("error");
+          });
+       }
+     }).catch((err) => {
+        alert("error");
+     });
   }
   const handleOrderDetails = () => {
      navigate("/orderdetail");
@@ -19,7 +38,7 @@ const ContactRow = (props) => {
       <td>{props.contact.description}</td>
       <td><input type='number' value='1' id='quantity' name='quantity' min='1' max='5'/></td>
       <td>
-        <button type="submit" class="btn btn-danger mr-2" onClick={handleWishlist}>Save</button>
+        <button type="submit" class="btn btn-danger mr-2" onClick={() => handleWishlist(props.contact._id)}>Save</button>
         <button type="submit" class="btn btn-success ms-1" onClick={handleOrderDetails}>Buy Now</button>
       </td>
     </tr>

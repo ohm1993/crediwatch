@@ -1,13 +1,15 @@
 
 import React, { Component } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 class ContactRow extends React.Component {
   render() {
     return (
       <tr>
-        <td><img src={this.props.contact.image} width="100" height="100"></img></td>
-        <td>{this.props.contact.name}</td>
-        <td>{this.props.contact.price}</td>
+        <td><img src={this.props.contact.product_id.image} width="100" height="100"></img></td>
+        <td>{this.props.contact.product_id.name}</td>
+        <td>{this.props.contact.product_id.price}</td>
         <td>{1}</td>
         <td><button type="submit" class="btn btn-danger ms-1">Remove</button></td>
       </tr>
@@ -15,19 +17,75 @@ class ContactRow extends React.Component {
   }
 }
 
+function myParams(Component) {
+    return props => <Component navHook={useNavigate()} />;
+}
+
 class ContactTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      orderlists: [],
+      total_price: 0
+    };
+    this.place_order = this.place_order.bind(this);
+  }
+  componentDidMount() {
+      let user = JSON.parse(localStorage.getItem("user"));
+      axios.get(`http://localhost:8000/wishlist/${user.wishlist._id}`)
+        .then(response => {
+          console.log("order list response data is",response);
+          if(response.data.status){
+            let totalprice = 0;
+            response.data.data[0].items.forEach((item) => {
+              totalprice = totalprice + item.product_id.price
+            })
+             console.log("order list data value is",response.data.data[0].items,totalprice);
+             this.setState({ orderlists: response.data.data[0].items,total_price:totalprice });
+          }
+        })
+        .catch(error => {
+          alert("error");
+        });
+  }
+
+  place_order() {
+    let user = JSON.parse(localStorage.getItem("user"));
+    axios.post('http://localhost:8000/order/create',{
+       user_id:user._id,
+       status:'ACTIVE',
+       total_price:this.state.total_price
+     }).then((res) => {
+        if(res.data.status){
+            let createOrderResp = res.data.data;
+             axios.post(`http://localhost:8000/order/${createOrderResp._id}/items`,{
+               product_id: this.state.orderlists[0].product_id._id,
+               price:this.state.orderlists[0].product_id.price
+             }).then((resp1) =>{
+                axios.delete(`http://localhost:8000/wishlist/${user.wishlist._id}`).then((res) => {
+                     alert("order created successfully");
+                     //window.location.href='/orders'
+                 }).catch((err) => {
+                    console.log("error while deleing the wishlist and items",err);
+                    alert(err.message);
+                 });
+             }).catch((err) => {
+               console.log("error while creating order item is",err);
+                alert("error");
+             });
+        }
+     }).catch((err) => {
+        console.log("error value while create order is",err)
+        alert("error");
+     });
+  }
+
   render() {
     var rows = [];
-    this.props.contacts.forEach((contact) => {
-      if (contact.name.indexOf(this.props.filterText) === -1) {
-        return;
-      }
+    this.state.orderlists.forEach((contact) => {
       rows.push(<ContactRow contact={contact} />);
     });
-    const place_order = () => {
-      alert("Order Placed Successfully!");
-      window.location.href='/orders'
-    }
+
     return (
       <table className='table'>
         <thead>
@@ -46,21 +104,21 @@ class ContactTable extends React.Component {
 <td>   </td>
 <td>   </td>
 <td><h5>Subtotal</h5></td>
-<td class="text-right"><h5><strong>$999.99</strong></h5></td>
+<td class="text-right"><h5><strong>{this.state.total_price}</strong></h5></td>
 </tr>
 <tr>
 <td>   </td>
 <td>   </td>
 <td>   </td>
 <td><h5>Estimated shipping</h5></td>
-<td class="text-right"><h5><strong>$9.999.99</strong></h5></td>
+<td class="text-right"><h5><strong>0.00</strong></h5></td>
 </tr>
 <tr>
 <td>   </td>
 <td>   </td>
 <td>   </td>
 <td><h3>Total</h3></td>
-<td class="text-right"><h3><strong>$9.999.99</strong></h3></td>
+<td class="text-right"><h3><strong>{this.state.total_price}</strong></h3></td>
 </tr>
 <tr>
 <td>   </td>
@@ -71,7 +129,7 @@ class ContactTable extends React.Component {
 <span class="fa fa-shopping-cart"></span> Continue Shopping
 </button></td>
 <td>
-<button type="button" class="btn btn-success" onClick={place_order}>
+<button type="button" class="btn btn-success" onClick={this.place_order}>
 Place Order <span class="fa fa-play"></span>
 </button></td>
 </tr>
@@ -81,32 +139,7 @@ Place Order <span class="fa fa-play"></span>
   }
 }
 
-class SearchBar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
-  }
-
-  handleFilterTextInputChange(e) {
-    this.props.onFilterTextInput(e.target.value);
-  }
-
-  render() {
-    return (
-      <form>
-        <input
-          className="form-control"
-          type="text"
-          placeholder="Search..."
-          value={this.props.filterText}
-          onChange={this.handleFilterTextInputChange}
-        />
-      </form>
-    );
-  }
-}
-
-export default class  OrderDetail extends React.Component {
+class  OrderDetail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -133,3 +166,5 @@ export default class  OrderDetail extends React.Component {
     );
   }
 }
+
+export default myParams(OrderDetail);

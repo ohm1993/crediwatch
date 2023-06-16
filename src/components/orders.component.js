@@ -1,33 +1,56 @@
 
 import React, { Component } from "react";
+import axios from 'axios';
 
 class ContactRow extends React.Component {
   render() {
     return (
       <tr>
-        <td>{this.props.contact.ordernumber}</td>
-        <td>{this.props.contact.orderdate}</td>
-        <td><img src={this.props.contact.image} width="50" height="50"></img></td>
-        <td>{this.props.contact.name}</td>
-        <td>{this.props.contact.quantity}</td>
-        <td>{this.props.contact.price}</td>
+        <td>{this.props.contact.order_id}</td>
+        <td>{this.props.contact.createdAt}</td>
+        <td><img src={this.props.contact.product_id.image} width="50" height="50"></img></td>
+        <td>{this.props.contact.product_id.name}</td>
+        <td>1</td>
+        <td>{this.props.total_price}</td>
         <td>
-          <button type="submit" class="btn btn-danger" disabled>{this.props.contact.status}</button>
+          <button type="submit" className="btn btn-danger" disabled>{this.props.status}</button>
         </td>
-        <td><button class="btn btn-success ms-1">Details</button></td>
       </tr>
     );
   }
 }
 
 class ContactTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      orders: [],
+      total_price:'',
+      status:''
+    };
+  }
+  componentDidMount() {
+      let user = JSON.parse(localStorage.getItem("user"));
+      axios.get(`http://localhost:8000/order/${user._id}`)
+        .then(response => {
+            console.log("order response is",response.data.data[0]);
+            if(response.data.status){
+               this.setState({ orders: response.data.data[0].orderitems,
+                              status:response.data.data[0].status,
+                              total_price:response.data.data[0].total_price
+                            });
+            }
+        })
+        .catch(error => {
+          console.log("while fetching order list error is",error);
+          alert("error");
+        });
+  }
+
   render() {
     var rows = [];
-    this.props.contacts.forEach((contact) => {
-      if (contact.name.indexOf(this.props.filterText) === -1) {
-        return;
-      }
-      rows.push(<ContactRow contact={contact} />);
+    this.state.orders.forEach((contact) => {
+      rows.push(<ContactRow contact={contact} status={this.state.status} total_price={this.state.total_price}/>);
     });
     return (
       <table className='table'>
@@ -40,7 +63,6 @@ class ContactTable extends React.Component {
             <th>Quantity</th>
             <th>Total</th>
             <th>Status</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
@@ -49,63 +71,16 @@ class ContactTable extends React.Component {
   }
 }
 
-class SearchBar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handleFilterTextInputChange = this.handleFilterTextInputChange.bind(this);
-  }
-
-  handleFilterTextInputChange(e) {
-    this.props.onFilterTextInput(e.target.value);
-  }
-
-  render() {
-    return (
-      <form>
-        <input
-          className="form-control"
-          type="text"
-          placeholder="Search..."
-          value={this.props.filterText}
-          onChange={this.handleFilterTextInputChange}
-        />
-      </form>
-    );
-  }
-}
-
 export default class  Orders extends React.Component {
   constructor(props) {
     super(props);
-    // FilterableContactTable is the owner of the state as the filterText is needed in both nodes (searchbar and table) that are below in the hierarchy tree.
-    this.state = {
-      filterText: ''
-    };
-
-    this.handleFilterTextInput = this.handleFilterTextInput.bind(this);
-
-  }
-
-  handleFilterTextInput(filterText) {
-    //Call to setState to update the UI
-    this.setState({
-      filterText: filterText
-    });
-    //React knows the state has changed, and calls render() method again to learn what should be on the screen
   }
 
   render() {
     return (
       <div>
         <h1>Order List</h1>
-        <SearchBar
-          filterText={this.state.filterText}
-          onFilterTextInput={this.handleFilterTextInput}
-        />
-        <ContactTable
-          contacts={this.props.contacts}
-          filterText={this.state.filterText}
-        />
+        <ContactTable />
       </div>
     );
   }

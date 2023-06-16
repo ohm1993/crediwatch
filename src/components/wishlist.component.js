@@ -1,26 +1,32 @@
 
 import React, { Component } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const ContactRow = (props) => {
   const navigate = useNavigate();
   const handleOrderDetails = () => {
      navigate("/orderdetail");
   }
-  const removeItems = () => {
-     navigate("/orderdetail");
+  const removeItems = (id) => {
+     let user = JSON.parse(localStorage.getItem("user"));
+     axios.delete(`http://localhost:8000/wishlist/${user.wishlist._id}/items/${id}`).then((res) => {
+         alert("item removed successfully");
+         navigate("/product");
+      }).catch((err) => {
+         alert(err.message);
+      });
   }
 
   return (
     <tr>
-      <td><img src={props.contact.image} width="100" height="100"></img></td>
-      <td>{props.contact.name}</td>
-      <td>{props.contact.price}</td>
-      <td>{props.contact.description}</td>
-      <td>1</td>
+      <td><img src={props.contact.product_id.image} width="100" height="100"></img></td>
+      <td>{props.contact.product_id.name}</td>
+      <td>{props.contact.product_id.price}</td>
+      <td>{props.contact.product_id.description}</td>
       <td>
-        <button type="submit" class="btn btn-danger mr-2" onClick={removeItems}>Remove</button>
-        <button type="submit" class="btn btn-success ms-1" onClick={handleOrderDetails}>Buy Now</button>
+        <button type="submit" className="btn btn-danger mr-2" onClick={() => removeItems(props.contact._id)}>Remove</button>
+        <button type="submit" className="btn btn-success ms-1" onClick={handleOrderDetails}>Buy Now</button>
       </td>
     </tr>
   );
@@ -28,12 +34,32 @@ const ContactRow = (props) => {
 
 
 class ContactTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      wishlists: []
+    };
+  }
+  componentDidMount() {
+      let user = JSON.parse(localStorage.getItem("user"));
+      axios.get(`http://localhost:8000/wishlist/${user.wishlist._id}`)
+        .then(response => {
+          if(response.data.status){
+             console.log("wish list data value is",response.data.data[0].items);
+             this.setState({ wishlists: response.data.data[0].items });
+          }
+        })
+        .catch(error => {
+          alert("error");
+        });
+  }
+
   render() {
     var rows = [];
-    this.props.contacts.forEach((contact) => {
-      if (contact.name.indexOf(this.props.filterText) === -1) {
-        return;
-      }
+    this.state.wishlists.forEach((contact) => {
+      // if (contact.name.indexOf(this.props.filterText) === -1) {
+      //   return;
+      // }
       rows.push(<ContactRow contact={contact} />);
     });
     return (
@@ -44,7 +70,6 @@ class ContactTable extends React.Component {
             <th>Name</th>
             <th>Price</th>
             <th>Description</th>
-            <th>Quantity</th>
             <th>Action</th>
           </tr>
         </thead>

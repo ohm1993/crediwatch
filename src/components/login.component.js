@@ -22,7 +22,7 @@ export const Login = () => {
          }).then((res) => {
            console.log("success response is",res);
            alert("Logedin Successfully!");
-           dispatch({type:"LOGIN",payload:{user:{name:"ohm"}}})
+           dispatch({type:"LOGIN",payload:{user:res.data.data}})
            navigate("/product");
          }).catch((err) => {
             alert("error");
