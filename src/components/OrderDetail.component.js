@@ -29,15 +29,16 @@ const ContactTable = (props) => {
         console.log("order list response data is",response);
         if(response.data.status){
           let totalprice = 0;
-          response.data.data[0].items.forEach((item) => {
+          response.data.data.items.forEach((item) => {
             totalprice = totalprice + item.product_id.price
           })
-           console.log("order list data value is",response.data.data[0].items,totalprice);
-           setOrderLists(response.data.data[0].items);
+           console.log("order list data value is",totalprice);
+           setOrderLists(response.data.data.items);
            setTotal_price(totalprice);
         }
       })
       .catch(error => {
+        console.log("order details error is",error);
         alert("error");
       });
   }, []);

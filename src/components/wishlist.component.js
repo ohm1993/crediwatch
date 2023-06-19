@@ -16,13 +16,14 @@ const Wishlists = () => {
      axios.get(`http://localhost:8000/wishlist/${user.wishlist._id}`)
        .then(response => {
          if(response.data.status){
-            const resp = response.data.data[0].items;
+            const resp = response.data.data.items;
             resp.forEach((res) => {
               res.name = res.product_id.name;
               res.image = res.product_id.image;
               res.price = res.product_id.price;
               res.description = res.product_id.description;
             })
+            console.log("resp value is",resp);
             setData(resp);
          }
        })
@@ -38,6 +39,7 @@ const Wishlists = () => {
     switch (action) {
       case 'removeItems':
            let user = JSON.parse(localStorage.getItem("user"));
+           console.log("row id and user wish list id is",user.wishlist._id,rowId);
            axios.delete(`http://localhost:8000/wishlist/${user.wishlist._id}/items/${rowId}`).then((res) => {
                alert("item removed successfully");
                navigate("/product");
