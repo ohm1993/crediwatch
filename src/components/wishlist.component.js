@@ -57,24 +57,22 @@ class ContactTable extends React.Component {
   render() {
     var rows = [];
     this.state.wishlists.forEach((contact) => {
-      // if (contact.name.indexOf(this.props.filterText) === -1) {
-      //   return;
-      // }
       rows.push(<ContactRow contact={contact} />);
     });
     return (
-      <table className='table'>
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Description</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </table>
+        <table className='table'>
+          {rows.length?
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Description</th>
+              <th>Action</th>
+            </tr>
+          </thead>:''}
+          {rows.length? <tbody>rows</tbody>:<h1>No Items in the wishlists</h1>}
+        </table>
     );
   }
 }
@@ -110,9 +108,7 @@ export default class  Wishlists extends React.Component {
     this.state = {
       filterText: ''
     };
-
     this.handleFilterTextInput = this.handleFilterTextInput.bind(this);
-
   }
 
   handleFilterTextInput(filterText) {
@@ -125,10 +121,6 @@ export default class  Wishlists extends React.Component {
     return (
       <div>
         <h1>Wish List</h1>
-        <SearchBar
-          filterText={this.state.filterText}
-          onFilterTextInput={this.handleFilterTextInput}
-        />
         <ContactTable
           contacts={this.props.contacts}
           filterText={this.state.filterText}
