@@ -4,16 +4,22 @@ import axios from 'axios';
 
 const Orders = () => {
   const buttons = [
-    { label: 'active', action: 'view' }
+    { label: 'view', action: 'view',disable: true }
   ];
   const [data, setData] = useState([]);
   useEffect(() => {
     let user = JSON.parse(localStorage.getItem("user"));
     axios.get(`http://localhost:8000/order/${user._id}`)
       .then(response => {
-          console.log("order response is",response.data.data);
+          console.log("orders response is",response.data.data);
           if(response.data.status){
-             setData(response.data.data)
+             const resp = response.data.data;
+             resp.forEach((res) => {
+               res.name = res.orderitems[0].product_id.name;
+               res.image = res.orderitems[0].product_id.image;
+               res.quantity = 1.
+             })
+             setData(resp)
           }
       })
       .catch(error => {
@@ -22,11 +28,11 @@ const Orders = () => {
       });
   }, []);
 
-  const columns = ['Order Number', 'Order Date', 'Image','Name','Quantity','Total','Status'];
+  const columns = ['_id', 'createdAt', 'image','name','quantity','total_price','status'];
 
   return (
     <div>
-      <h2>Table Example</h2>
+      <h1>Orders</h1>
       <Table
         columns={columns}
         buttons={buttons}
