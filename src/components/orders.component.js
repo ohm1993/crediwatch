@@ -1,84 +1,39 @@
-
-import React, { Component } from "react";
+import React, { Component, useEffect, useState  } from "react";
+import Table from './table.component';
 import axios from 'axios';
 
-class ContactRow extends React.Component {
-  render() {
-    return (
-      <tr>
-        <td>{this.props.contact._id}</td>
-        <td>{this.props.contact.createdAt}</td>
-        <td><img src={this.props.contact.orderitems[0].product_id.image} width="50" height="50"></img></td>
-        <td>{this.props.contact.orderitems[0].product_id.name}</td>
-        <td>1</td>
-        <td>{this.props.contact.total_price}</td>
-        <td>
-          <button type="submit" className="btn btn-danger" disabled>{this.props.contact.status}</button>
-        </td>
-      </tr>
-    );
-  }
-}
+const Orders = () => {
+  const buttons = [
+    { label: 'active', action: 'view' }
+  ];
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    let user = JSON.parse(localStorage.getItem("user"));
+    axios.get(`http://localhost:8000/order/${user._id}`)
+      .then(response => {
+          console.log("order response is",response.data.data);
+          if(response.data.status){
+             setData(response.data.data)
+          }
+      })
+      .catch(error => {
+        console.log("while fetching order list error is",error);
+        alert("error");
+      });
+  }, []);
 
-class ContactTable extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      orders: [],
-      total_price:'',
-      status:''
-    };
-  }
-  componentDidMount() {
-      let user = JSON.parse(localStorage.getItem("user"));
-      axios.get(`http://localhost:8000/order/${user._id}`)
-        .then(response => {
-            console.log("order response is",response.data.data);
-            if(response.data.status){
-               this.setState({ orders: response.data.data});
-            }
-        })
-        .catch(error => {
-          console.log("while fetching order list error is",error);
-          alert("error");
-        });
-  }
+  const columns = ['Order Number', 'Order Date', 'Image','Name','Quantity','Total','Status'];
 
-  render() {
-    var rows = [];
-    this.state.orders.forEach((contact) => {
-      rows.push(<ContactRow contact={contact}/>);
-    });
-    return (
-      <table className='table'>
-        <thead>
-          <tr>
-            <th>Order Number</th>
-            <th>Order Date</th>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Quantity</th>
-            <th>Total</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
-      </table>
-    );
-  }
-}
+  return (
+    <div>
+      <h2>Table Example</h2>
+      <Table
+        columns={columns}
+        buttons={buttons}
+        data={data}
+      />
+    </div>
+  );
+};
 
-export default class  Orders extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <div>
-        <h1>Order List</h1>
-        <ContactTable />
-      </div>
-    );
-  }
-}
+export default Orders;
