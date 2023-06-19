@@ -34,7 +34,12 @@ const Table = ({ columns, buttons, data, onButtonClick }) => {
           ))}
         </tbody>
         :
-        "No Data"
+        <h1 style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '10vh',
+      }}> No Data </h1>
       }
     </table>
   );

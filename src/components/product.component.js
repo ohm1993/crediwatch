@@ -2,8 +2,10 @@ import React, { Component, useEffect, useState  } from "react";
 import { useNavigate } from "react-router-dom";
 import Table from './table.component';
 import axios from 'axios';
+import { AuthContext } from "../App";
 
 const Product = () => {
+  const { dispatch } = React.useContext(AuthContext);
   const buttons = [
     { label: 'Save', action: 'handleWishlist', disable: false},
     { label: 'Buy Now', action: 'handleOrderDetails', disable: false}
@@ -41,9 +43,13 @@ const Product = () => {
                    axios.post(`http://localhost:8000/wishlist/${wishlistResp.data._id}/items`,{
                      product_id: rowId
                    }).then((resp1) =>{
-                      console.log("resp1 value is",resp1);
-                      alert("item added to the wish list successfully");
-                      navigate("/wishlists");
+                      axios.get(`http://localhost:8000/user/${user._id}`).then((res) => {
+                         dispatch({type:"LOGIN",payload:{user:res.data.data}})
+                         alert("item added to the wish list successfully");
+                         navigate("/wishlists");
+                       }).catch((err) => {
+                          alert("error");
+                       });
                    }).catch((err) => {
                       alert("error");
                    });
