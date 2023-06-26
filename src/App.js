@@ -7,6 +7,7 @@ import Product from './components/product.component';
 import Wishlists from './components/wishlist.component';
 import Orders from './components/orders.component';
 import OrderDetail from './components/OrderDetail.component';
+import ModalExample from './components/modal.component';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { Navigation } from './components/navigation';
@@ -61,6 +62,7 @@ function App() {
             <Route path="/wishlists" element={<Wishlists  />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/orderdetail" element={<OrderDetail />} />
+            <Route path="/modal" element={<ModalExample />} />
           </Routes>
         </div>
       </div>

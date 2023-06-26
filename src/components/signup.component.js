@@ -54,7 +54,6 @@ export default class SignUp extends Component {
                        <button type="submit" className="btn btn-primary">Sign Up</button>
                   </div>
                   <br></br>
-                  <div className="col-md-12"> <a className="btn btn-lg btn-google btn-block text-uppercase btn-outline btn btn-danger google-plus" href="#">Signup Using Google</a> </div>
                   <p className="forgot-password text-right">Already registered <a href="/sign-in">sign in?</a></p>
                 </form>
         );

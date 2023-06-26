@@ -24,7 +24,7 @@ const Table = ({ columns, buttons, data, onButtonClick }) => {
                     className="btn btn-danger mr-2"
                     key={button.label}
                     disabled={button.disable}
-                    onClick={() => onButtonClick(button.action, row._id)}
+                    onClick={() => onButtonClick(button.action,row._id,row=row)}
                   >
                     {button.label}
                   </button>

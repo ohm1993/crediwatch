@@ -44,34 +44,33 @@ const ContactTable = (props) => {
   }, []);
 
     const place_order = () => {
-      let user = JSON.parse(localStorage.getItem("user"));
-      axios.post('http://localhost:8000/order/create',{
-         user_id:user._id,
-         status:'ACTIVE',
-         total_price:total_price
-       }).then((res) => {
-          if(res.data.status){
-              let createOrderResp = res.data.data;
-               axios.post(`http://localhost:8000/order/${createOrderResp._id}/items`,{
-                 product_id: orderLists[0].product_id._id,
-                 price:orderLists[0].product_id.price
-               }).then((resp1) =>{
-                  axios.delete(`http://localhost:8000/wishlist/${user.wishlist._id}`).then((res) => {
-                       alert("order created successfully");
-                       navigate("/orders");
-                   }).catch((err) => {
-                      console.log("error while deleing the wishlist and items",err);
-                      alert(err.message);
-                   });
-               }).catch((err) => {
-                 console.log("error while creating order item is",err);
-                  alert("error");
-               });
-          }
-       }).catch((err) => {
-          console.log("error value while create order is",err)
-          alert("error");
-       });
+        let user = JSON.parse(localStorage.getItem("user"));
+        axios.post('http://localhost:8000/order/create',{
+           user_id:user._id,
+           status:'ACTIVE',
+           total_price:total_price
+         }).then((res) => {
+            if(res.data.status){
+                let createOrderResp = res.data.data;
+                 axios.post(`http://localhost:8000/order/${createOrderResp._id}/items`,{
+                   wishlist_id: user.wishlist._id
+                 }).then((resp1) => {
+                    axios.delete(`http://localhost:8000/wishlist/${user.wishlist._id}`).then((res) => {
+                         alert("order created successfully");
+                         navigate("/orders");
+                     }).catch((err) => {
+                        console.log("error while deleing the wishlist and items",err);
+                        alert(err.message);
+                     });
+                 }).catch((err) => {
+                   console.log("error while creating order item is",err);
+                    alert("error");
+                 });
+            }
+         }).catch((err) => {
+            console.log("error value while create order is",err)
+            alert("error");
+         });
     }
 
   var rows = [];
